@@ -26,7 +26,7 @@ src/
   lib/          content provider, Sanity client + query, seasonal helpers, types
   data/         sample content used until Sanity is connected
 studio/         Sanity Studio (the content editor)
-public/_redirects  SPA fallback for Cloudflare Pages
+wrangler.jsonc  Cloudflare config (static assets + SPA routing)
 ```
 
 ## Connecting Sanity (content editing)
@@ -49,18 +49,19 @@ Until a section has content in Sanity, the site keeps showing the sample content
 
 The form posts to [Web3Forms](https://web3forms.com) (free, no server). Get an access key with the shop's email address and set `VITE_WEB3FORMS_KEY`. Without a key, the form opens the visitor's email app instead.
 
-## Deploying to Cloudflare Pages
+## Deploying to Cloudflare
+
+Hosted as static assets on Cloudflare, configured by `wrangler.jsonc`. Its `not_found_handling: single-page-application` setting sends every path to `index.html`, so deep links like `/shop/the-wild-romantic` work.
 
 1. Push this repo to GitHub.
-2. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages → Connect to Git** and pick the repo.
-3. Use these build settings:
-   - Framework preset: **Vite** (or "None")
+2. In the Cloudflare dashboard, go to **Workers & Pages → Create application → Import a repository** and pick the repo.
+3. Use these settings (skip "auto-generate config", as `wrangler.jsonc` already exists):
    - Build command: `npm run build`
-   - Output directory: `dist`
-4. Under **Environment variables**, add `VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET` and `VITE_WEB3FORMS_KEY`.
-5. Add a custom domain under **Custom domains**.
+   - Deploy command: `npx wrangler deploy`
+4. Under **Variables**, add `NODE_VERSION` = `22`, plus `VITE_SANITY_PROJECT_ID`, `VITE_SANITY_DATASET` and `VITE_WEB3FORMS_KEY` when you have them.
+5. Add a custom domain under **Settings → Domains & Routes**.
 
-`public/_redirects` sends every path to `index.html`, so deep links like `/shop/the-wild-romantic` work.
+Every push to `main` redeploys automatically.
 
 ## Accessibility and motion
 
